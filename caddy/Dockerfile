@@ -22,7 +22,8 @@ RUN    apk -U --no-progress upgrade \
     && go get github.com/mholt/caddy/caddy \
     && mv $GOPATH/bin/caddy /bin \
     && apk del --purge build-tools go git \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* \
+    && rm -rf /go
 
 EXPOSE 80 443 2015
 VOLUME /root/.caddy
