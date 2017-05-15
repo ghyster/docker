@@ -1,7 +1,7 @@
 FROM alpine:3.5
 MAINTAINER Nicolas Le Gras <nicolas.legras@gmail.com>
 
-LABEL caddy_version="0.10.0" architecture="amd64"
+LABEL caddy_version="0.10.2" architecture="amd64"
 
 ARG plugins=http.ipfilter
 
