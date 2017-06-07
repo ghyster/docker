@@ -14,7 +14,7 @@ RUN apk upgrade --update && apk add \
     && cd /usr/src/php/ext/memcached && git checkout -b php7 origin/php7 \
     && docker-php-ext-configure memcached \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install memcached gd zip iconv mcrypt mbstring mysqli pdo pdo_mysql \
+    && docker-php-ext-install memcached gd zip iconv mcrypt mbstring mysqli pcntl pdo pdo_mysql \
     && rm -rf /var/cache/apk/*     
 
 COPY php.ini /usr/local/etc/php/
