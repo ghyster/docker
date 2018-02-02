@@ -3,7 +3,7 @@ MAINTAINER Nicolas Le Gras <nicolas.legras@gmail.com>
 
 LABEL caddy_version="0.10.10" architecture="amd64"
 
-ARG plugins=http.ipfilter
+ARG plugins=http.ipfilter,http.cors
 
 RUN apk add --no-cache tar curl \
  && curl --silent --show-error --fail --location \
