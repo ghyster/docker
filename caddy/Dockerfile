@@ -1,22 +1,42 @@
-FROM alpine:3.6
-MAINTAINER Nicolas Le Gras <nicolas.legras@gmail.com>
+#
+# Builder
+#
+FROM ghyster/caddy-builder:arm64-0.11.3 as builder
 
-LABEL caddy_version="0.10.10" architecture="amd64"
+ARG version="0.11.3"
+ARG plugins="filebrowser,cors,realip,expires,cache,ipfilter"
 
-ARG plugins=http.ipfilter,http.cors
+# process wrapper
+RUN go get -v github.com/abiosoft/parent
 
-RUN apk add --no-cache tar curl \
- && curl --silent --show-error --fail --location \
-      --header "Accept: application/tar+gzip, application/x-gzip, application/octet-stream" -o - \
-      "https://caddyserver.com/download/linux/amd64?plugins=${plugins}" \
-    | tar --no-same-owner -C /usr/bin/ -xz caddy \
- && chmod 0755 /usr/bin/caddy \
- && /usr/bin/caddy -version
+RUN VERSION=${version} PLUGINS=${plugins} /bin/sh /usr/bin/builder.sh
+
+#
+# Final stage
+#
+FROM alpine:3.8
+LABEL maintainer "Nicolas Le Gras <nicolas.legras@gmail.com>"
+
+ARG version="0.11.3"
+LABEL caddy_version="$version"
+
+# Let's Encrypt Agreement
+ENV ACME_AGREE="true"
+
+RUN apk add --no-cache openssh-client git
+
+# install caddy
+COPY --from=builder /install/caddy /usr/bin/caddy
+
+# validate install
+RUN /usr/bin/caddy -version
+RUN /usr/bin/caddy -plugins
 
 EXPOSE 80 443 2015
-VOLUME /root/.caddy
-VOLUME /var/www/html
+VOLUME /root/.caddy 
 
+# install process wrapper
+COPY --from=builder /go/bin/parent /bin/parent
 
-ENTRYPOINT ["/usr/bin/caddy"]
-CMD ["-quic","--conf", "/etc/Caddyfile", "--log", "stdout"]
+ENTRYPOINT ["/bin/parent", "caddy"]
+CMD ["-quic","--conf", "/etc/Caddyfile", "--log", "stdout", "--agree=$ACME_AGREE"]
