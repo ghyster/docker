@@ -1,4 +1,4 @@
-FROM php:7-fpm-alpine
+FROM php:7.3-fpm-alpine
 # Install modules
 RUN apk upgrade --update && apk add \
   coreutils \
@@ -9,14 +9,14 @@ RUN apk upgrade --update && apk add \
   libpng-dev \
   libmemcached-dev \
   cyrus-sasl-dev \
+  libzip-dev \
   git \
   $PHPIZE_DEPS \
-    && git clone https://github.com/php-memcached-dev/php-memcached /usr/src/php/ext/memcached \
-    && cd /usr/src/php/ext/memcached && git checkout -b php7 origin/php7 \
-    && docker-php-ext-configure memcached \
+    && pecl install memcached-3.1.5 \
+    && docker-php-ext-enable memcached \
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install memcached gd zip iconv mbstring mysqli pcntl pdo pdo_mysql \
-    && pecl install mcrypt-1.0.1 \
+    && docker-php-ext-install gd zip iconv mbstring mysqli pcntl pdo pdo_mysql \
+    && pecl install mcrypt-1.0.3 \
     && docker-php-ext-enable mcrypt \
     && rm -rf /var/cache/apk/*     
 
